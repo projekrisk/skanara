@@ -20,9 +20,9 @@ class JurnalGuruResource extends Resource
 {
     protected static ?string $model = JurnalGuru::class;
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check'; 
-    protected static ?string $navigationLabel = 'Absensi Kelas'; 
-    protected static ?string $slug = 'absensi-kelas';
-    protected static ?string $navigationGroup = 'Presensi';
+    protected static ?string $navigationLabel = 'Presensi Kelas'; 
+    protected static ?string $slug = 'presensi-kelas';
+    protected static ?string $navigationGroup = 'Absensi';
     protected static ?int $navigationSort = 4; 
 
     public static function canViewAny(): bool

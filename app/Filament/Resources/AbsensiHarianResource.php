@@ -23,8 +23,9 @@ class AbsensiHarianResource extends Resource
     protected static ?string $model = AbsensiHarian::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
-    protected static ?string $navigationLabel = 'Absensi Kiosk';
-    protected static ?string $slug = 'absensi-harian';
+    protected static ?string $navigationLabel = 'Presensi Kiosk';
+    protected static ?string $slug = 'presensi-harian';
+    protected static ?string $navigationGroup = 'Absensi';
     protected static ?int $navigationSort = 3;
 
     // --- IZIN AKSES: Super Admin, Admin Sekolah, DAN Operator ---
