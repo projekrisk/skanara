@@ -110,6 +110,11 @@ class SiswaResource extends Resource
             ->filters([])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('riwayat')
+                    ->label('Riwayat')
+                    ->icon('heroicon-o-clock')
+                    ->color('info')
+                    ->url(fn (Siswa $record) => Pages\RiwayatSiswa::getUrl(['record' => $record->id])),
                 Action::make('qr_code')
                     ->label('QR')
                     ->icon('heroicon-o-qr-code')
@@ -144,6 +149,7 @@ class SiswaResource extends Resource
             'index' => Pages\ListSiswas::route('/'),
             'create' => Pages\CreateSiswa::route('/create'),
             'edit' => Pages\EditSiswa::route('/{record}/edit'),
+            'riwayat' => Pages\RiwayatSiswa::route('/{record}/riwayat'),
         ];
     }
 }

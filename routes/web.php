@@ -5,6 +5,7 @@
    use App\Http\Controllers\DownloadTemplateController;
    use App\Http\Controllers\DownloadQrController; 
    use App\Http\Controllers\ExportJurnalController;
+   use App\Http\Controllers\CetakRiwayatController;
 
    // Halaman Depan (Landing Page)
    Route::get('/', function () {
@@ -31,4 +32,5 @@
         
         // Export Bulanan (Baru)
         Route::get('/export-jurnal-bulanan', [ExportJurnalController::class, 'exportBulanan'])->name('export.jurnal.bulanan');
-    });
+        Route::get('/cetak-riwayat-siswa', [CetakRiwayatController::class, 'cetak'])->name('cetak.riwayat.siswa');
+});
