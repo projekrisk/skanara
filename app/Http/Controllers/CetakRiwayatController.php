@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AbsensiHarian; // UPDATE Model
+use App\Models\AbsensiHarian; 
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 
 class CetakRiwayatController extends Controller
 {
@@ -14,12 +16,49 @@ class CetakRiwayatController extends Controller
         $siswaId = $request->query('siswa_id');
         $siswa = Siswa::with(['kelas', 'sekolah'])->findOrFail($siswaId);
 
-        // Ambil data ketidakhadiran dari AbsensiHarian
-        $riwayat = AbsensiHarian::query()
+        $startDate = Carbon::now()->startOfMonth();
+        $endDate = Carbon::now(); 
+
+        if ($request->query('start_date') && $request->query('end_date')) {
+            $startDate = Carbon::parse($request->query('start_date'));
+            $endDate = Carbon::parse($request->query('end_date'));
+        }
+
+        $existingRecords = AbsensiHarian::query()
             ->where('siswa_id', $siswaId)
-            ->whereIn('status', ['Sakit', 'Izin', 'Alpha', 'Telat'])
-            ->orderBy('tanggal', 'desc')
-            ->get();
+            ->whereBetween('tanggal', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->get()
+            ->keyBy('tanggal');
+
+        $finalReport = collect([]);
+        $period = CarbonPeriod::create($startDate, $endDate);
+
+        foreach ($period as $date) {
+            $dateStr = $date->format('Y-m-d');
+            
+            if ($date->isSunday()) {
+                continue;
+            }
+
+            if ($existingRecords->has($dateStr)) {
+                
+                $record = $existingRecords->get($dateStr);
+                
+                if (in_array($record->status, ['Sakit', 'Izin', 'Alpha', 'Telat'])) {
+                    $finalReport->push($record);
+                }
+
+            } else {
+                $dummyAlpha = new AbsensiHarian();
+                $dummyAlpha->tanggal = $dateStr;
+                $dummyAlpha->jam_masuk = '-';
+                $dummyAlpha->status = 'Alpha';
+                
+                $finalReport->push($dummyAlpha);
+            }
+        }
+
+        $riwayat = $finalReport->sortByDesc('tanggal');
 
         $pdf = Pdf::loadView('pdf.laporan-siswa', compact('siswa', 'riwayat'))
             ->setPaper('a4', 'portrait');

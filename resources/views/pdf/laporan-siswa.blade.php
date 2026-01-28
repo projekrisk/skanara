@@ -6,7 +6,6 @@
         @page { margin: 2cm; }
         body { font-family: 'Helvetica', sans-serif; font-size: 11pt; line-height: 1.3; }
         
-        /* Header Kop Surat */
         .header { 
             text-align: center; 
             margin-bottom: 20px; 
@@ -25,25 +24,21 @@
         .school-name { font-size: 16pt; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
         .report-title { font-size: 12pt; font-weight: bold; letter-spacing: 1px; }
 
-        /* Info Siswa (Tabel Tanpa Border agar Rapi) */
         .meta-table { width: 100%; margin-bottom: 20px; }
         .meta-table td { border: none; padding: 2px; vertical-align: top; }
         .label-col { width: 80px; font-weight: bold; }
         .sep-col { width: 10px; text-align: center; }
 
-        /* Tabel Data */
         .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .data-table th, .data-table td { border: 1px solid #000; padding: 8px; text-align: left; }
         .data-table th { background-color: #f0f0f0; text-align: center; font-weight: bold; }
         .text-center { text-align: center; }
         
-        /* Status Color */
-        .status-Sakit { color: #0284c7; } /* Biru */
-        .status-Alpha { color: #dc2626; } /* Merah */
-        .status-Izin { color: #d97706; } /* Orange */
-        .status-Telat { color: #b45309; } /* Amber */
+        .status-Sakit { color: #0284c7; }
+        .status-Alpha { color: #dc2626; }
+        .status-Izin { color: #d97706; }
+        .status-Telat { color: #b45309; }
 
-        /* Footer */
         .footer {
             position: fixed;
             bottom: -30px;
@@ -60,9 +55,7 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
-        <!-- Logika Logo -->
         @php
             $logoPath = null;
             if($siswa->sekolah->logo) {
@@ -86,7 +79,6 @@
         <div class="report-title">LAPORAN REKAPITULASI KETIDAKHADIRAN SISWA</div>
     </div>
 
-    <!-- Info Siswa Rapi -->
     <table class="meta-table">
         <tr>
             <td class="label-col">Nama</td>
@@ -105,7 +97,6 @@
         </tr>
     </table>
 
-    <!-- Tabel Data -->
     <table class="data-table">
         <thead>
             <tr>
@@ -135,7 +126,6 @@
         </tbody>
     </table>
 
-    <!-- Footer -->
     <div class="footer">
         <div class="footer-left">
             Skanara - {{ $siswa->sekolah->nama_sekolah }}
