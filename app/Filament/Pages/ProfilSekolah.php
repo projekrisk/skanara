@@ -20,9 +20,10 @@ class ProfilSekolah extends Page implements HasForms
     use InteractsWithForms;
 
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
-    protected static ?string $navigationLabel = 'Profil Sekolah';
-    protected static ?string $title = 'Pengaturan Sekolah';
+    protected static ?string $navigationLabel = 'Sekolah';
+    protected static ?string $title = 'Profil Sekolah';
     protected static string $view = 'filament.pages.profil-sekolah';
+    protected static ?string $navigationGroup = 'Profil';
     protected static ?int $navigationSort = 7;
 
     public ?array $data = [];

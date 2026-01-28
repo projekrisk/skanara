@@ -22,7 +22,6 @@ class JurnalGuruResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check'; 
     protected static ?string $navigationLabel = 'Absensi Kelas'; 
     protected static ?string $slug = 'absensi-kelas';
-    protected static ?string $navigationGroup = 'Presensi';
     protected static ?int $navigationSort = 4; 
 
     public static function canViewAny(): bool
