@@ -10,14 +10,23 @@ use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\ViewField;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\CheckboxList; 
+use Filament\Forms\Components\TimePicker;   
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 
-class ProfilSekolah extends Page implements HasForms
+use Filament\Actions\Action;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Forms\Components\Select;
+use App\Models\Paket;
+use App\Models\Rekening;
+use App\Models\Tagihan;
+
+class ProfilSekolah extends Page implements HasForms, HasActions
 {
     use InteractsWithForms;
+    use InteractsWithActions;
 
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
     protected static ?string $navigationLabel = 'Sekolah';
@@ -27,9 +36,12 @@ class ProfilSekolah extends Page implements HasForms
 
     public ?array $data = [];
 
+    // Filter Akses: Hanya Admin Sekolah
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::check() && Auth::user()->sekolah_id !== null && Auth::user()->peran === 'admin_sekolah';
+        return Auth::check() 
+            && Auth::user()->sekolah_id !== null 
+            && Auth::user()->peran === 'admin_sekolah';
     }
 
     public function mount(): void
@@ -61,6 +73,7 @@ class ProfilSekolah extends Page implements HasForms
             ->schema([
                 Tabs::make('Tabs')
                     ->tabs([
+                        // TAB 1: Identitas
                         Tabs\Tab::make('Identitas Sekolah')
                             ->icon('heroicon-m-information-circle')
                             ->schema([
@@ -77,10 +90,66 @@ class ProfilSekolah extends Page implements HasForms
                                 TextInput::make('email_admin')->email(),
                             ])->columns(2),
                         
-                        // TAB PAKET LANGGANAN DIHAPUS (Dipindah ke Member Area)
+                        // TAB 2: Langganan
+                        Tabs\Tab::make('Paket Langganan')
+                            ->icon('heroicon-m-credit-card')
+                            ->schema([
+                                ViewField::make('info_paket')
+                                    ->view('filament.forms.components.info-paket')
+                                    ->viewData([
+                                        'getRecord' => fn () => Auth::user()->sekolah
+                                    ]),
+                            ]),
+                            
+                        // TAB 3: Pengaturan Presensi
+                        Tabs\Tab::make('Aturan Jam & Hari')
+                            ->icon('heroicon-m-clock')
+                            ->schema([
+                                CheckboxList::make('hari_kerja')
+                                    ->label('Hari Sekolah Aktif')
+                                    ->options([
+                                        'Senin' => 'Senin',
+                                        'Selasa' => 'Selasa',
+                                        'Rabu' => 'Rabu',
+                                        'Kamis' => 'Kamis',
+                                        'Jumat' => 'Jumat',
+                                        'Sabtu' => 'Sabtu',
+                                        'Minggu' => 'Minggu',
+                                    ])
+                                    ->columns(4)
+                                    ->columnSpanFull()
+                                    ->required(),
 
-                        // Tab Pengaturan Presensi (Jika ada di Tahap 28) akan tetap ada di sini
-                        // ...
+                                TimePicker::make('jam_mulai_absen')
+                                    ->label('Buka Gerbang (Mulai Scan)')
+                                    ->helperText('Siswa tidak bisa absen sebelum jam ini.')
+                                    ->seconds(false)
+                                    ->native(false) // Nonaktifkan native picker browser
+                                    ->format('H:i') // Simpan format 24 jam
+                                    ->displayFormat('H:i') // Tampilkan format 24 jam
+                                    ->closeOnDateSelection()
+                                    ->required(),
+
+                                TimePicker::make('jam_masuk')
+                                    ->label('Jam Masuk (Batas Telat)')
+                                    ->helperText('Scan setelah jam ini dianggap TERLAMBAT.')
+                                    ->seconds(false)
+                                    ->native(false)
+                                    ->format('H:i')
+                                    ->displayFormat('H:i')
+                                    ->closeOnDateSelection()
+                                    ->required(),
+
+                                TimePicker::make('jam_pulang')
+                                    ->label('Jam Pulang Sekolah')
+                                    ->helperText('Siswa baru bisa scan pulang setelah jam ini.')
+                                    ->seconds(false)
+                                    ->native(false)
+                                    ->format('H:i')
+                                    ->displayFormat('H:i')
+                                    ->closeOnDateSelection()
+                                    ->required(),
+                            ])->columns(3),
                     ])->columnSpanFull(),
             ])
             ->statePath('data');
@@ -97,10 +166,49 @@ class ProfilSekolah extends Page implements HasForms
                 'alamat'       => $data['alamat'],
                 'email_admin'  => $data['email_admin'],
                 'logo'         => $data['logo'],
-                // Update kolom lain jika ada di form
+                'hari_kerja' => $data['hari_kerja'],
+                'jam_mulai_absen' => $data['jam_mulai_absen'],
+                'jam_masuk' => $data['jam_masuk'],
+                'jam_pulang' => $data['jam_pulang'],
             ]);
             
-            Notification::make()->success()->title('Profil Diperbarui')->send();
+            Notification::make()->success()->title('Profil & Pengaturan Diperbarui')->send();
         }
+    }
+
+    public function upgradePaketAction(): Action
+    {
+        return Action::make('upgradePaket')
+            ->label('Upgrade Paket')
+            ->modalHeading('Pilih Paket Langganan')
+            ->form([
+                Select::make('paket_id')
+                    ->label('Pilih Paket')
+                    ->options(Paket::where('is_active', true)->pluck('nama_paket', 'id'))
+                    ->required()
+                    ->reactive(),
+                    
+                Select::make('rekening_id')
+                    ->label('Metode Pembayaran (Transfer Bank)')
+                    ->options(Rekening::where('is_active', true)->get()->mapWithKeys(function ($item) {
+                        return [$item->id => "{$item->nama_bank} - {$item->nomor_rekening}"];
+                    }))
+                    ->required(),
+            ])
+            ->action(function (array $data) {
+                $sekolah = Auth::user()->sekolah;
+                $paket = Paket::find($data['paket_id']);
+                
+                Tagihan::create([
+                    'sekolah_id' => $sekolah->id,
+                    'paket_id' => $paket->id,
+                    'rekening_id' => $data['rekening_id'],
+                    'jumlah_bayar' => $paket->harga,
+                    'status' => 'pending',
+                ]);
+                
+                Notification::make()->success()->title('Invoice Berhasil Dibuat')->send();
+                $this->redirect(\App\Filament\Resources\TagihanResource::getUrl('index'));
+            });
     }
 }
