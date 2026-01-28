@@ -9,15 +9,18 @@ class SchoolInfoWidget extends Widget
 {
     protected static string $view = 'filament.widgets.school-info-widget';
     
-    // Tampil Paling Atas
     protected static ?int $sort = 1;
     
-    // Widget melebar penuh (Full Width)
+    // Paksa Full Width
     protected int | string | array $columnSpan = 'full'; 
+
+    public function getColumnSpan(): int | string | array
+    {
+        return 'full';
+    }
 
     public static function canView(): bool
     {
-        // Hanya untuk Admin Sekolah
         return Auth::check() && Auth::user()->sekolah_id !== null;
     }
 }

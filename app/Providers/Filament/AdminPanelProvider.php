@@ -29,9 +29,8 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             
             // --- BRANDING ---
-            ->brandName('Skanara') // Hanya Nama Teks
+            ->brandName('Skanara') 
             ->favicon(asset('favicon.png'))
-            // brandLogo dihapus agar hanya tampil teks
             // ----------------
 
             ->colors([
@@ -40,13 +39,12 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                // PERBAIKAN: Gunakan Custom Dashboard agar layout 1 kolom
+                \App\Filament\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                // Widgets otomatis dimuat dari folder app/Filament/Widgets.
-                // Urutan ditentukan oleh properti $sort di masing-masing file Widget.
-                // SchoolInfoWidget ($sort = 1) -> DownloadAppWidget ($sort = 2) -> StatsOverview ($sort = 3)
+                // Widgets otomatis dimuat. 
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -58,8 +56,6 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                
-                // --- MIDDLEWARE CEK LANGGANAN ---
                 \App\Http\Middleware\CheckSchoolSubscription::class, 
             ])
             ->authMiddleware([

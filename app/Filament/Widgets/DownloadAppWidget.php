@@ -10,11 +10,15 @@ class DownloadAppWidget extends Widget
 {
     protected static string $view = 'filament.widgets.download-app-widget';
     
-    // Urutan ke-2 (Setelah Info Sekolah)
     protected static ?int $sort = 2;
     
-    // Widget melebar penuh (Full Width)
+    // Paksa Full Width
     protected int | string | array $columnSpan = 'full'; 
+
+    public function getColumnSpan(): int | string | array
+    {
+        return 'full';
+    }
 
     public static function canView(): bool
     {
