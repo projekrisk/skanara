@@ -45,10 +45,9 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                // PERBAIKAN: Hapus AccountWidget agar widget Selamat Datang hilang
-                // Widgets\AccountWidget::class, 
-                
-                // Widgets\FilamentInfoWidget::class,
+                // Widgets otomatis dimuat dari folder app/Filament/Widgets.
+                // Urutan ditentukan oleh properti $sort di masing-masing file Widget.
+                // SchoolInfoWidget ($sort = 1) -> DownloadAppWidget ($sort = 2) -> StatsOverview ($sort = 3)
             ])
             ->middleware([
                 EncryptCookies::class,
