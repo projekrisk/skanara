@@ -28,6 +28,7 @@ class TagihanResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
     protected static ?string $navigationLabel = 'Tagihan & Langganan';
     protected static ?int $navigationSort = 2;
+    protected static ?string $slug = 'tagihan';
 
     // --- FITUR: Sembunyikan dari Sidebar Admin Sekolah ---
     // Admin Sekolah mengakses tagihan lewat menu "Member Area"
