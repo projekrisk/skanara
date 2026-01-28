@@ -14,6 +14,7 @@
         .status-Sakit { color: blue; }
         .status-Alpha { color: red; }
         .status-Izin { color: orange; }
+        .status-Telat { color: #d97706; }
     </style>
 </head>
 <body>
@@ -31,10 +32,10 @@
     <table>
         <thead>
             <tr>
-                <th width="5%">No</th>
-                <th width="25%">Tanggal</th>
-                <th>Mata Pelajaran</th>
-                <th width="15%">Status</th>
+                <th width="10%">No</th>
+                <th width="40%">Tanggal</th>
+                <th width="20%">Jam Scan</th>
+                <th width="30%">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -42,7 +43,7 @@
             <tr>
                 <td>{{ $index + 1 }}</td>
                 <td>{{ \Carbon\Carbon::parse($row->tanggal)->translatedFormat('d F Y') }}</td>
-                <td>{{ $row->mata_pelajaran }}</td>
+                <td>{{ $row->jam_masuk ?? '-' }}</td>
                 <td class="status-{{ $row->status }}"><strong>{{ $row->status }}</strong></td>
             </tr>
             @empty

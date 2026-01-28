@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DetailJurnal;
+use App\Models\AbsensiHarian; // UPDATE Model
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -14,13 +14,11 @@ class CetakRiwayatController extends Controller
         $siswaId = $request->query('siswa_id');
         $siswa = Siswa::with(['kelas', 'sekolah'])->findOrFail($siswaId);
 
-        // Ambil data ketidakhadiran
-        $riwayat = DetailJurnal::query()
+        // Ambil data ketidakhadiran dari AbsensiHarian
+        $riwayat = AbsensiHarian::query()
             ->where('siswa_id', $siswaId)
-            ->whereIn('status', ['Sakit', 'Izin', 'Alpha'])
-            ->join('jurnal_guru', 'detail_jurnal.jurnal_guru_id', '=', 'jurnal_guru.id')
-            ->select('detail_jurnal.*', 'jurnal_guru.tanggal', 'jurnal_guru.mata_pelajaran')
-            ->orderBy('jurnal_guru.tanggal', 'desc')
+            ->whereIn('status', ['Sakit', 'Izin', 'Alpha', 'Telat'])
+            ->orderBy('tanggal', 'desc')
             ->get();
 
         $pdf = Pdf::loadView('pdf.laporan-siswa', compact('siswa', 'riwayat'))
