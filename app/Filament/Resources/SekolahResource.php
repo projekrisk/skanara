@@ -26,7 +26,7 @@ class SekolahResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
     protected static ?string $navigationLabel = 'Data Sekolah';
     protected static ?string $slug = 'sekolah';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 7;
 
     // --- FITUR KEAMANAN: HANYA SUPER ADMIN ---
     public static function canViewAny(): bool
