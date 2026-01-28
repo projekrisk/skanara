@@ -23,7 +23,7 @@ class AbsensiHarianResource extends Resource
     protected static ?string $model = AbsensiHarian::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
-    protected static ?string $navigationLabel = 'Absensi Gerbang (Kiosk)';
+    protected static ?string $navigationLabel = 'Absensi Kiosk';
     protected static ?string $slug = 'absensi-harian';
     protected static ?int $navigationSort = 4;
 

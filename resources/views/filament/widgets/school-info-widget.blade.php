@@ -27,7 +27,7 @@
                     NPSN: {{ $sekolah->npsn }}
                 </span>
                 
-                <span class="px-2.5 py-0.5 rounded-md text-sm font-medium {{ $isPro ? 'bg-success-100 text-success-800' : 'bg-gray-100 text-gray-800' }}">
+                <span class="px-2.5 py-0.5 rounded-md text-sm font-medium {{ $isPro ? 'bg-success-100 text-success-800' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' }}">
                     {{ ucfirst($paket) }} Plan
                 </span>
             </div>

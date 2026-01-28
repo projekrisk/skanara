@@ -20,7 +20,7 @@ class JurnalGuruResource extends Resource
 {
     protected static ?string $model = JurnalGuru::class;
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check'; 
-    protected static ?string $navigationLabel = 'Absensi Kelas (Guru)'; 
+    protected static ?string $navigationLabel = 'Absensi Kelas'; 
     protected static ?string $slug = 'absensi-kelas';
     protected static ?int $navigationSort = 1; 
 
