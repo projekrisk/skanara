@@ -23,6 +23,7 @@ class PerangkatResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-device-tablet';
     protected static ?string $navigationLabel = 'Manajemen Perangkat';
     protected static ?string $slug = 'perangkat';
+    protected static ?string $navigationGroup = 'Master Data';
     protected static ?int $navigationSort = 6;
 
     public static function canViewAny(): bool

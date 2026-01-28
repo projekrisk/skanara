@@ -28,6 +28,7 @@ class SiswaResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $navigationLabel = 'Data Siswa';
     protected static ?string $slug = 'siswa';
+    protected static ?string $navigationGroup = 'Master Data';
     protected static ?int $navigationSort = 2;
 
     public static function canViewAny(): bool
