@@ -20,7 +20,7 @@ class PaketResource extends Resource
     protected static ?string $model = Paket::class;
     protected static ?string $navigationIcon = 'heroicon-o-cube';
     protected static ?string $navigationLabel = 'Manajemen Paket';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
     protected static ?string $slug = 'paket';
 
     // Hanya Super Admin yang bisa akses

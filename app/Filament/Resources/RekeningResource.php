@@ -19,7 +19,7 @@ class RekeningResource extends Resource
     protected static ?string $model = Rekening::class;
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
     protected static ?string $navigationLabel = 'Rekening Bank';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
     protected static ?string $slug = 'rekening';
 
     // Hanya Super Admin yang bisa akses

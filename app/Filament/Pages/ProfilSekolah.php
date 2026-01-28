@@ -23,8 +23,7 @@ class ProfilSekolah extends Page implements HasForms
     protected static ?string $navigationLabel = 'Sekolah';
     protected static ?string $title = 'Profil Sekolah';
     protected static string $view = 'filament.pages.profil-sekolah';
-    protected static ?string $navigationGroup = 'Profil';
-    protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 10;
 
     public ?array $data = [];
 

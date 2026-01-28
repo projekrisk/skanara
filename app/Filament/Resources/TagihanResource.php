@@ -27,7 +27,7 @@ class TagihanResource extends Resource
     protected static ?string $model = Tagihan::class;
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
     protected static ?string $navigationLabel = 'Tagihan & Langganan';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 4;
     protected static ?string $slug = 'tagihan';
 
     // --- FITUR: Sembunyikan dari Sidebar Admin Sekolah ---

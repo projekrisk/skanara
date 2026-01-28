@@ -32,10 +32,10 @@ class MemberPage extends Page implements HasForms, HasActions, HasTable
 
     protected static ?string $navigationIcon = 'heroicon-o-identification';
     protected static ?string $navigationLabel = 'Member Area';
-    protected static ?string $title = 'Status Member';
+    protected static ?string $title = 'Member Area';
     protected static ?string $slug = 'member-area';
     protected static string $view = 'filament.pages.member-page';
-    protected static ?string $navigationGroup = 'Profil';
+    protected static ?string $navigationGroup = 'Member';
     protected static ?int $navigationSort = 10;
 
     public static function shouldRegisterNavigation(): bool
