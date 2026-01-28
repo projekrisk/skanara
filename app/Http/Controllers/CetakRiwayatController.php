@@ -28,20 +28,32 @@ class CetakRiwayatController extends Controller
             ->where('siswa_id', $siswaId)
             ->whereBetween('tanggal', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
             ->get()
-            ->keyBy('tanggal');
+            ->keyBy('tanggal'); 
+
+        $hariKerjaSekolah = $siswa->sekolah->hari_kerja;
+        
+        if (empty($hariKerjaSekolah)) {
+            $hariKerjaSekolah = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+        }
+
+        $mapHari = [
+            'Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa', 
+            'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'
+        ];
 
         $finalReport = collect([]);
         $period = CarbonPeriod::create($startDate, $endDate);
 
         foreach ($period as $date) {
             $dateStr = $date->format('Y-m-d');
-            
-            if ($date->isSunday()) {
-                continue;
+            $dayNameEng = $date->format('l');
+            $dayNameIndo = $mapHari[$dayNameEng]; 
+
+            if (!in_array($dayNameIndo, $hariKerjaSekolah)) {
+                continue; 
             }
 
             if ($existingRecords->has($dateStr)) {
-                
                 $record = $existingRecords->get($dateStr);
                 
                 if (in_array($record->status, ['Sakit', 'Izin', 'Alpha', 'Telat'])) {
@@ -58,7 +70,7 @@ class CetakRiwayatController extends Controller
             }
         }
 
-        $riwayat = $finalReport->sortByDesc('tanggal');
+        $riwayat = $finalReport->sortBy('tanggal'); 
 
         $pdf = Pdf::loadView('pdf.laporan-siswa', compact('siswa', 'riwayat'))
             ->setPaper('a4', 'portrait');

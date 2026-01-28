@@ -16,7 +16,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Placeholder; 
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\FileUpload; // <--- PERBAIKAN: Import FileUpload Ditambahkan
+use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use App\Models\Paket;
 use App\Models\Rekening;
@@ -77,7 +77,6 @@ class MemberPage extends Page implements HasForms, HasActions, HasTable
                         default => 'gray',
                     }),
 
-                // KOLOM INFORMASI / DEADLINE
                 TextColumn::make('info_waktu')
                     ->label('Batas Waktu / Masa Aktif') 
                     ->getStateUsing(function (Tagihan $record) {
@@ -110,7 +109,6 @@ class MemberPage extends Page implements HasForms, HasActions, HasTable
                 ImageColumn::make('bukti_bayar')->disk('uploads')->circular(),
             ])
             ->actions([
-                // Gunakan EditAction (Modal) agar tidak redirect ke halaman lain
                 \Filament\Tables\Actions\EditAction::make('upload_bukti')
                     ->label(fn (Tagihan $record) => 
                         ($record->created_at->addHours(24)->isPast()) ? 'Kadaluwarsa' : 'Bayar'
@@ -121,7 +119,7 @@ class MemberPage extends Page implements HasForms, HasActions, HasTable
                     )
                     ->modalHeading('Upload Bukti Pembayaran')
                     ->form([
-                        FileUpload::make('bukti_bayar') // <--- Sekarang FileUpload sudah diimport
+                        FileUpload::make('bukti_bayar')
                             ->label('Foto Struk Transfer')
                             ->disk('uploads')
                             ->directory('bukti-bayar')
@@ -134,17 +132,14 @@ class MemberPage extends Page implements HasForms, HasActions, HasTable
                     )
                     ->visible(fn (Tagihan $record) => $record->status === 'pending'),
                 
-                // Tambahkan Tombol Hapus (Hanya jika pending)
                 \Filament\Tables\Actions\DeleteAction::make()
                     ->label('Batal')
                     ->visible(fn (Tagihan $record) => $record->status === 'pending'),
             ]);
     }
 
-    // --- ACTION: UPGRADE PAKET (DIRECT) ---
     public function upgradeAction(): Action
     {
-        // Otomatis ambil paket berbayar pertama (Premium Tahunan)
         $paketPremium = Paket::where('harga', '>', 0)->first();
 
         return Action::make('upgrade')
@@ -152,8 +147,6 @@ class MemberPage extends Page implements HasForms, HasActions, HasTable
             ->color('primary')
             ->icon('heroicon-o-sparkles')
             
-            // --- LOGIKA VISIBILITAS (BARU) ---
-            // Tombol hanya muncul jika paket masih 'free' ATAU sudah kadaluwarsa
             ->visible(function() {
                 $sekolah = Auth::user()->sekolah;
                 
@@ -162,12 +155,10 @@ class MemberPage extends Page implements HasForms, HasActions, HasTable
                 
                 return $isFree || $isExpired;
             })
-            // ---------------------------------
             
             ->modalHeading('Upgrade ke Akun Premium')
             ->modalSubmitActionLabel('Buat Tagihan')
             ->form([
-                // Tampilkan Info Paket (Read Only)
                 Placeholder::make('detail_paket')
                     ->hiddenLabel()
                     ->content(fn () => new \Illuminate\Support\HtmlString("
@@ -185,11 +176,9 @@ class MemberPage extends Page implements HasForms, HasActions, HasTable
                         </div>
                     ")),
 
-                // Hidden Input untuk ID Paket
                 Hidden::make('paket_id')
                     ->default($paketPremium?->id),
                     
-                // Pilihan Bank
                 Select::make('rekening_id')
                     ->label('Metode Pembayaran (Transfer Bank)')
                     ->options(Rekening::where('is_active', true)->get()->mapWithKeys(function ($item) {
@@ -199,7 +188,6 @@ class MemberPage extends Page implements HasForms, HasActions, HasTable
                     ->native(false)
                     ->prefixIcon('heroicon-m-building-library'),
 
-                // Panduan Langkah Pembayaran
                 Placeholder::make('panduan')
                     ->hiddenLabel()
                     ->content(new \Illuminate\Support\HtmlString("
@@ -235,7 +223,6 @@ class MemberPage extends Page implements HasForms, HasActions, HasTable
                 
                 Notification::make()->success()->title('Invoice Berhasil Dibuat')->body('Silakan upload bukti pembayaran pada tabel di bawah.')->send();
                 
-                // Refresh halaman untuk melihat invoice baru di tabel
                 return redirect()->route('filament.admin.pages.member-area');
             });
     }
