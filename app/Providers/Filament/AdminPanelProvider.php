@@ -17,6 +17,9 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Auth; // Import Auth
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -28,23 +31,37 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             
-            // --- BRANDING ---
-            ->brandName('Skanara') 
+            // --- 1. BRANDING DINAMIS ---
+            ->brandName(fn () => 
+                (Auth::check() && Auth::user()->sekolah_id) 
+                    ? Auth::user()->sekolah->nama_sekolah 
+                    : 'Skanara Admin'
+            )
             ->favicon(asset('favicon.png'))
-            // ----------------
+            ->brandLogo(fn () => 
+                (Auth::check() && Auth::user()->sekolah_id && Auth::user()->sekolah->logo)
+                    ? asset('uploads/' . Auth::user()->sekolah->logo)
+                    : asset('favicon.png') // Default Logo Skanara
+            )
+            ->brandLogoHeight('3rem')
+            // ---------------------------
 
+            // --- 2. GLOBAL SEARCH ---
+            // Pastikan global search aktif (default true, tapi pastikan resource dikonfigurasi)
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k']) 
+            
             ->colors([
                 'primary' => Color::Blue,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                // PERBAIKAN: Gunakan Custom Dashboard agar layout 1 kolom
+                // Gunakan Custom Dashboard (Tahap 36) atau default
                 \App\Filament\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                // Widgets otomatis dimuat. 
+                // Widgets
             ])
             ->middleware([
                 EncryptCookies::class,

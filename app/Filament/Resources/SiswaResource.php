@@ -21,6 +21,7 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Actions\Action;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class SiswaResource extends Resource
 {
@@ -30,6 +31,28 @@ class SiswaResource extends Resource
     protected static ?string $slug = 'siswa';
     protected static ?string $navigationGroup = 'Master Data';
     protected static ?int $navigationSort = 2;
+
+    protected static ?string $recordTitleAttribute = 'nama_lengkap';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['nama_lengkap', 'nisn'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Kelas' => $record->kelas->nama_kelas ?? '-',
+            'NISN' => $record->nisn,
+        ];
+    }
+
+    public static function getGlobalSearchResultUrl(Model $record): string
+    {
+        // Redirect hasil pencarian ke halaman Riwayat
+        return Pages\RiwayatSiswa::getUrl(['record' => $record->id]);
+    }
+    // ------------------------------------
 
     public static function canViewAny(): bool
     {
@@ -110,11 +133,15 @@ class SiswaResource extends Resource
             ->filters([])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                
+                // Action Buka Riwayat
                 Tables\Actions\Action::make('riwayat')
                     ->label('Riwayat')
                     ->icon('heroicon-o-clock')
                     ->color('info')
                     ->url(fn (Siswa $record) => Pages\RiwayatSiswa::getUrl(['record' => $record->id])),
+
+                // Action Lihat QR
                 Action::make('qr_code')
                     ->label('QR')
                     ->icon('heroicon-o-qr-code')
@@ -126,8 +153,8 @@ class SiswaResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-
-                    // --- DOWNLOAD QR ZIP ---
+                    
+                    // Bulk Download QR (ZIP)
                     Tables\Actions\BulkAction::make('download_qr')
                         ->label('Download QR Code (ZIP)')
                         ->icon('heroicon-o-archive-box-arrow-down')
