@@ -20,7 +20,7 @@ class KelasResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Data Kelas';
     protected static ?string $slug = 'kelas';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
 
     public static function canViewAny(): bool
     {

@@ -25,7 +25,7 @@ class AbsensiHarianResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clock';
     protected static ?string $navigationLabel = 'Absensi Kiosk';
     protected static ?string $slug = 'absensi-harian';
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 3;
 
     // --- IZIN AKSES: Super Admin, Admin Sekolah, DAN Operator ---
     public static function canViewAny(): bool

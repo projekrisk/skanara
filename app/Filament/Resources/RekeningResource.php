@@ -20,6 +20,7 @@ class RekeningResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
     protected static ?string $navigationLabel = 'Rekening Bank';
     protected static ?int $navigationSort = 3;
+    protected static ?string $slug = 'rekening';
 
     // Hanya Super Admin yang bisa akses
     public static function canViewAny(): bool
