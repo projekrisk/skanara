@@ -13,6 +13,7 @@ class DownloadAppWidget extends Widget
     // Urutan ke-2 (Setelah Info Sekolah)
     protected static ?int $sort = 2;
     
+    // Widget melebar penuh (Full Width)
     protected int | string | array $columnSpan = 'full'; 
 
     public static function canView(): bool

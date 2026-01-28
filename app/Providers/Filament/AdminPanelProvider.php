@@ -29,10 +29,9 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             
             // --- BRANDING ---
-            ->brandName('Skanara Admin')
+            ->brandName('Skanara') // Hanya Nama Teks
             ->favicon(asset('favicon.png'))
-            ->brandLogo(asset('favicon.png'))
-            ->brandLogoHeight('3rem')
+            // brandLogo dihapus agar hanya tampil teks
             // ----------------
 
             ->colors([

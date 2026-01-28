@@ -12,6 +12,7 @@ class SchoolInfoWidget extends Widget
     // Tampil Paling Atas
     protected static ?int $sort = 1;
     
+    // Widget melebar penuh (Full Width)
     protected int | string | array $columnSpan = 'full'; 
 
     public static function canView(): bool
