@@ -10,11 +10,11 @@ class DownloadAppWidget extends Widget
 {
     protected static string $view = 'filament.widgets.download-app-widget';
     
-    // Urutan tampilan (sesuaikan agar bersebelahan dengan stats)
+    // Urutan tampilan (paling atas atau setelah stats)
     protected static ?int $sort = 2;
     
-    // Agar widget melebar memenuhi ruang yang tersedia (opsional, tergantung grid)
-    protected int | string | array $columnSpan = 1; 
+    // UBAH: Agar widget melebar penuh (Full Width)
+    protected int | string | array $columnSpan = 'full'; 
 
     // Tampilkan untuk Admin Sekolah & Super Admin
     public static function canView(): bool

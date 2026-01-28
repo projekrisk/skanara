@@ -45,8 +45,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                // Widget lain otomatis ditemukan via discoverWidgets
+                // PERBAIKAN: Hapus AccountWidget agar widget Selamat Datang hilang
+                // Widgets\AccountWidget::class, 
+                
+                // Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -60,7 +62,6 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
                 
                 // --- MIDDLEWARE CEK LANGGANAN ---
-                // Mencegah Admin Sekolah mengakses menu selain Member Area jika expired
                 \App\Http\Middleware\CheckSchoolSubscription::class, 
             ])
             ->authMiddleware([
