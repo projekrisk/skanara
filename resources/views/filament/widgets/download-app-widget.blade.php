@@ -4,7 +4,7 @@
             <x-filament::icon icon="heroicon-m-device-phone-mobile" class="w-8 h-8 text-primary-600 dark:text-primary-400" />
         </div>
         <div class="flex-1">
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Download Aplikasi Android</h2>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Download Aplikasi</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">{{ $desc }}</p>
             <div class="mt-4 flex items-center gap-3">
                 <x-filament::button tag="a" href="{{ $url }}" target="_blank" icon="heroicon-m-arrow-down-tray" color="primary" size="sm">Download APK</x-filament::button>
