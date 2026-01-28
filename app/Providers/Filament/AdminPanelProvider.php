@@ -17,9 +17,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Filament\View\PanelsRenderHook;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Auth; // Import Auth
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString; // Import HtmlString
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -31,23 +30,28 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             
-            // --- 1. BRANDING DINAMIS ---
-            ->brandName(fn () => 
-                (Auth::check() && Auth::user()->sekolah_id) 
-                    ? Auth::user()->sekolah->nama_sekolah 
-                    : 'Skanara Admin'
-            )
+            // --- 1. BRANDING DINAMIS (LOGO + TEKS) ---
+            ->brandName('Skanara Admin') // Fallback meta title
             ->favicon(asset('favicon.png'))
-            ->brandLogo(fn () => 
-                (Auth::check() && Auth::user()->sekolah_id && Auth::user()->sekolah->logo)
-                    ? asset('uploads/' . Auth::user()->sekolah->logo)
-                    : asset('favicon.png') // Default Logo Skanara
-            )
-            ->brandLogoHeight('3rem')
-            // ---------------------------
+            ->brandLogo(fn () => new HtmlString(
+                '<div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="' . (
+                        (Auth::check() && Auth::user()->sekolah_id && Auth::user()->sekolah->logo)
+                            ? asset('uploads/' . Auth::user()->sekolah->logo)
+                            : asset('favicon.png')
+                    ) . '" style="height: 35px; width: auto; object-fit: contain; border-radius: 4px;" alt="Logo">
+                    
+                    <span style="font-weight: 700; font-size: 1.1rem; color: var(--gray-950); dark:color:white;">' . (
+                        (Auth::check() && Auth::user()->sekolah_id) 
+                            ? Auth::user()->sekolah->nama_sekolah 
+                            : 'Skanara Admin'
+                    ) . '</span>
+                </div>'
+            ))
+            ->brandLogoHeight('auto') // Biarkan auto agar wrapper fleksibel
+            // ------------------------------------------
 
             // --- 2. GLOBAL SEARCH ---
-            // Pastikan global search aktif (default true, tapi pastikan resource dikonfigurasi)
             ->globalSearchKeyBindings(['command+k', 'ctrl+k']) 
             
             ->colors([
@@ -56,7 +60,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                // Gunakan Custom Dashboard (Tahap 36) atau default
                 \App\Filament\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
