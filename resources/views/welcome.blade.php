@@ -128,9 +128,9 @@
                 </h1>
 
                 <p class="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto font-light leading-relaxed">
-                    Beralih ke ekosistem presensi digital berbasis 
-                    <span class="text-white font-semibold">Digital</span>. 
-                    Real-time, transparan, dan terintegrasi penuh.
+                    Saatnya beralih ke ekosistem presensi digital berbasis 
+                    <span class="text-white font-semibold">QR Code</span>. 
+                    real-time, transparan, dan terintegrasi penuh.
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-5 relative z-20">
