@@ -6,6 +6,7 @@ use App\Http\Controllers\RegisterSchoolController;
 use App\Http\Controllers\DownloadTemplateController;
 use App\Http\Controllers\DownloadQrController;
 use App\Http\Controllers\ExportJurnalController;
+use App\Http\Controllers\CetakRiwayatController; // Import Controller Baru
 
 /*
 |--------------------------------------------------------------------------
@@ -18,15 +19,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// 2. Halaman Kebijakan Privasi (Wajib untuk Play Store)
+// 2. Halaman Kebijakan Privasi
 Route::get('/privacy-policy', function () {
     return view('privacy');
 })->name('privacy.policy');
 
-// 3. Proses Pendaftaran Sekolah Baru
+// 3. Proses Pendaftaran Sekolah
 Route::post('/register-school', [RegisterSchoolController::class, 'store'])->name('register.school');
 
-// 4. Utilitas: Migrasi Database (Opsional, hapus di production)
+// 4. Migrasi Database (Opsional)
 Route::get('/migrate-force', function() {
     Artisan::call('migrate --force');
     return 'Database Migration Completed.';
@@ -44,15 +45,16 @@ Route::middleware('auth')->group(function () {
         ->name('download.qr.zip');
 
     // C. Export Jurnal Mengajar (Excel)
-    // Harian (Per ID Jurnal)
     Route::get('/export-jurnal/{id}', [ExportJurnalController::class, 'export'])
         ->name('export.jurnal');
-        
-    // Bulanan (Rekap)
     Route::get('/export-jurnal-bulanan', [ExportJurnalController::class, 'exportBulanan'])
         ->name('export.jurnal.bulanan');
         
-    // D. Test Manual Scheduler (Opsional)
+    // D. Cetak Riwayat Siswa (PDF) - YANG DIBUTUHKAN SAAT INI
+    Route::get('/cetak-riwayat-siswa', [CetakRiwayatController::class, 'cetak'])
+        ->name('cetak.riwayat.siswa');
+        
+    // E. Test Scheduler (Opsional)
     Route::get('/test-autocancel', function () {
         Artisan::call('tagihan:autocancel');
         return "Command Autocancel dijalankan.";
