@@ -30,25 +30,24 @@ class TagihanResource extends Resource
     protected static ?int $navigationSort = 4;
     protected static ?string $slug = 'tagihan';
 
-    // --- FITUR: Sembunyikan dari Sidebar Admin Sekolah ---
-    // Admin Sekolah mengakses tagihan lewat menu "Member Area"
     public static function shouldRegisterNavigation(): bool
     {
         return auth()->check() && auth()->user()->sekolah_id === null;
     }
 
-    // --- FITUR: Badge Notifikasi Count ---
+    public static function canViewAny(): bool
+    {
+        return auth()->check() && auth()->user()->sekolah_id === null;
+    }
+
     public static function getNavigationBadge(): ?string
     {
         if (!auth()->check()) return null;
 
         $user = auth()->user();
         
-        // Query dasar: Status pending
         $query = static::getModel()::where('status', 'pending');
 
-        // Jika user adalah Admin Sekolah, filter berdasarkan sekolah_id milik user
-        // Jika Super Admin, tampilkan semua pending
         if ($user->sekolah_id) {
             $query->where('sekolah_id', $user->sekolah_id);
         }
@@ -67,7 +66,6 @@ class TagihanResource extends Resource
     {
         return $form
             ->schema([
-                // Bagian Kiri: Detail Pembelian
                 Forms\Components\Section::make('Detail Pembelian')
                     ->schema([
                         Select::make('paket_id')
@@ -78,7 +76,7 @@ class TagihanResource extends Resource
                             ->afterStateUpdated(fn ($state, callable $set) => 
                                 $set('jumlah_bayar', Paket::find($state)?->harga ?? 0)
                             )
-                            ->disabled(fn ($record) => $record !== null), // Tidak bisa ubah paket setelah dibuat
+                            ->disabled(fn ($record) => $record !== null),
 
                         TextInput::make('jumlah_bayar')
                             ->prefix('Rp')
@@ -95,7 +93,6 @@ class TagihanResource extends Resource
                             ->disabled(fn ($record) => $record && $record->status !== 'pending'),
                     ])->columns(1),
 
-                // Bagian Kanan: Bukti Bayar
                 Forms\Components\Section::make('Konfirmasi Pembayaran')
                     ->schema([
                         FileUpload::make('bukti_bayar')
@@ -104,7 +101,7 @@ class TagihanResource extends Resource
                             ->directory('bukti-bayar')
                             ->image()
                             ->imageEditor()
-                            ->disabled(fn ($record) => $record && $record->status === 'paid'), // Kunci jika sudah lunas
+                            ->disabled(fn ($record) => $record && $record->status === 'paid'),
                         
                         Placeholder::make('status_text')
                             ->label('Status Pembayaran')
@@ -120,7 +117,7 @@ class TagihanResource extends Resource
                 TextColumn::make('nomor_invoice')->searchable()->sortable(),
                 TextColumn::make('sekolah.nama_sekolah')
                     ->label('Sekolah')
-                    ->hidden(fn () => auth()->check() && auth()->user()->sekolah_id !== null), // Hide jika user sekolah
+                    ->hidden(fn () => auth()->check() && auth()->user()->sekolah_id !== null),
                 TextColumn::make('paket.nama_paket')->label('Paket'),
                 TextColumn::make('jumlah_bayar')->money('IDR'),
                 TextColumn::make('status')
@@ -135,12 +132,10 @@ class TagihanResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
-                // Tombol Upload (Untuk Sekolah)
                 Tables\Actions\EditAction::make()
                     ->label('Upload Bukti')
                     ->hidden(fn ($record) => $record->status === 'paid'),
 
-                // Tombol Approve (KHUSUS SUPER ADMIN)
                 Action::make('approve')
                     ->label('Terima Pembayaran')
                     ->icon('heroicon-o-check-circle')
@@ -148,29 +143,24 @@ class TagihanResource extends Resource
                     ->requiresConfirmation()
                     ->visible(fn ($record) => auth()->user()->sekolah_id === null && $record->status === 'pending')
                     ->action(function (Tagihan $record) {
-                        // 1. Update Status Tagihan
                         $record->update([
                             'status' => 'paid',
                             'tgl_lunas' => now(),
                         ]);
 
-                        // 2. Perpanjang Langganan Sekolah
                         $sekolah = $record->sekolah;
                         $paket = $record->paket;
                         
-                        // Hitung tanggal baru
                         $currentExpiry = $sekolah->tgl_berakhir_langganan ? Carbon::parse($sekolah->tgl_berakhir_langganan) : now();
                         
-                        // Jika sudah expired, mulai dari sekarang. Jika belum, tambah dari tanggal expired.
                         if ($currentExpiry->isPast()) {
                             $newExpiry = now()->addDays($paket->durasi_hari);
                         } else {
                             $newExpiry = $currentExpiry->addDays($paket->durasi_hari);
                         }
 
-                        // Update Sekolah
                         $sekolah->update([
-                            'paket_langganan' => 'pro', // Atau sesuaikan logic nama paket
+                            'paket_langganan' => 'pro',
                             'tgl_berakhir_langganan' => $newExpiry,
                             'status_aktif' => true
                         ]);
@@ -178,7 +168,6 @@ class TagihanResource extends Resource
                         Notification::make()->success()->title('Pembayaran Diterima & Paket Aktif')->send();
                     }),
                 
-                // Tombol Tolak
                 Action::make('reject')
                     ->label('Tolak')
                     ->color('danger')
