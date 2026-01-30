@@ -147,7 +147,7 @@
 
                 <p class="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto font-light leading-relaxed">
                     Beralih ke ekosistem presensi digital berbasis 
-                    <span class="text-white font-semibold">AI & QR Code</span>. 
+                    <span class="text-white font-semibold">QR Code</span>. 
                     Real-time, transparan, dan terintegrasi penuh.
                 </p>
 
