@@ -3,7 +3,25 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Skanara</title>
+    
+    <title>Skanara - Sistem Absensi Digital</title>
+
+    <meta name="description" content="Solusi absensi sekolah modern berbasis QR Code dan Android Kiosk. Monitoring kehadiran siswa dan guru secara real-time, akurat, dan terintegrasi.">
+    <meta name="keywords" content="absensi sekolah, aplikasi sekolah, qr code siswa, sistem manajemen sekolah, skanara, presensi online">
+    <meta name="author" content="Skanara Team">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:title" content="Skanara - Digitalisasi Absensi Sekolah">
+    <meta property="og:description" content="Kelola kehadiran siswa dengan mudah menggunakan Skanara. Dukungan Scan QR Cepat, Mode Kiosk Offline, dan Laporan Real-time.">
+    <meta property="og:image" content="{{ asset('images/og-image.jpg') }}">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ url('/') }}">
+    <meta property="twitter:title" content="Skanara - Sistem Absensi Sekolah">
+    <meta property="twitter:description" content="Tinggalkan cara manual. Beralih ke Skanara untuk manajemen absensi yang lebih efisien.">
+    <meta property="twitter:image" content="{{ asset('images/og-image.jpg') }}">
+
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +37,7 @@
                         sans: ['"Outfit"', 'sans-serif'],
                     },
                     colors: {
-                        dark: '#0B1121', // Deep Space Blue
+                        dark: '#0B1121',
                         glass: 'rgba(255, 255, 255, 0.05)',
                         primary: '#3B82F6',
                         accent: '#06B6D4',
@@ -104,7 +122,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                         </svg>
                     </div>
-                    <span class="font-bold text-xl tracking-wide">Skan<span class="text-cyan-400">ara</span></span>
+                    <span class="font-bold text-xl tracking-wide">Ska<span class="text-cyan-400">nara</span></span>
                 </div>
                 <a href="/admin/login" class="text-sm font-semibold text-gray-300 hover:text-white transition">
                     Login →
@@ -128,8 +146,8 @@
                 </h1>
 
                 <p class="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto font-light leading-relaxed">
-                    Saatnya beralih ke ekosistem presensi digital berbasis 
-                    <span class="text-white font-semibold">QR Code</span>. 
+                    Beralih ke ekosistem presensi digital berbasis 
+                    <span class="text-white font-semibold">AI & QR Code</span>. 
                     Real-time, transparan, dan terintegrasi penuh.
                 </p>
 
@@ -165,7 +183,6 @@
         </footer>
     </div>
 
-    <!-- REGISTRATION MODAL -->
     <div id="registerModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-black/90 backdrop-blur-sm transition-opacity opacity-0" id="modalBackdrop"></div>
 
@@ -179,7 +196,6 @@
                                 <button type="button" onclick="toggleModal('registerModal')" class="text-gray-400 hover:text-white">✕</button>
                             </div>
 
-                            <!-- TAB NAVIGATION -->
                             <div class="flex border-b border-gray-700 mb-6">
                                 <button type="button" id="btn-tab-sekolah" onclick="switchTab('sekolah')" class="w-1/2 py-3 text-sm font-medium text-blue-500 border-b-2 border-blue-500 focus:outline-none transition-colors">
                                     1. Data Sekolah
@@ -189,11 +205,9 @@
                                 </button>
                             </div>
 
-                            <!-- FORM -->
                             <form action="{{ route('register.school') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                                 @csrf
                                 
-                                <!-- SECTION 1: DATA SEKOLAH -->
                                 <div id="tab-sekolah" class="space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-300 mb-1">Nama Sekolah</label>
@@ -213,7 +227,6 @@
                                     </div>
                                 </div>
 
-                                <!-- SECTION 2: DATA ADMIN -->
                                 <div id="tab-admin" class="space-y-4 hidden">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-300 mb-1">Nama Lengkap Admin</label>
