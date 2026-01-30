@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 
 class StatsOverview extends BaseWidget
 {
-    protected static ?int $sort = 3; // Urutan ke-3 (Paling bawah/setelah Download App)
+    protected static ?int $sort = 3;
 
     public static function canView(): bool
     {
@@ -24,7 +24,6 @@ class StatsOverview extends BaseWidget
     {
         $user = Auth::user();
 
-        // 1. Logika untuk Admin Sekolah
         if ($user->sekolah_id) {
             $sekolahId = $user->sekolah_id;
 
@@ -59,7 +58,6 @@ class StatsOverview extends BaseWidget
             ];
         }
 
-        // 2. Logika untuk Super Admin (UPDATE)
         return [
             Stat::make('Total Sekolah', Sekolah::count())
                 ->description('Sekolah Terdaftar')
@@ -70,11 +68,10 @@ class StatsOverview extends BaseWidget
                 ->description('Semua Pengguna System')
                 ->color('success'),
 
-            // UBAH: Dari Total Transaksi ke Member Premium
-            Stat::make('Member Premium', Sekolah::where('paket_langganan', '!=', 'free')->count())
-                ->description('Sekolah Berlangganan')
-                ->descriptionIcon('heroicon-m-star')
-                ->color('warning'),
+            Stat::make('Total Siswa', Siswa::count())
+                ->description('Total Siswa Terdaftar')
+                ->descriptionIcon('heroicon-m-users')
+                ->color('info'),
         ];
     }
 }
