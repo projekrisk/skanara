@@ -8,7 +8,7 @@ use App\Models\AbsensiHarian;
 use App\Models\Perangkat;
 use App\Models\Sekolah;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; // Tambahkan Facade DB untuk transaction
+use Illuminate\Support\Facades\DB;
 
 class SyncController extends Controller
 {
@@ -18,10 +18,12 @@ class SyncController extends Controller
         try {
             $sekolahId = null;
 
-            // 1. Identifikasi Sekolah (Via Guru atau Kiosk)
+            // 1. Identifikasi: Apakah Guru (User) atau Kiosk (Device)?
             if ($request->user()) {
+                // Login sebagai Guru (Bearer Token)
                 $sekolahId = $request->user()->sekolah_id;
             } else {
+                // Login sebagai Kiosk (Cek Header X-Device-Hash)
                 $deviceHash = $request->header('X-Device-Hash');
                 if ($deviceHash) {
                     $perangkat = Perangkat::where('device_id_hash', $deviceHash)->first();
@@ -32,15 +34,15 @@ class SyncController extends Controller
             }
 
             if (!$sekolahId) {
-                return response()->json(['message' => 'Akses Ditolak: Perangkat tidak terdaftar atau sesi berakhir.'], 401);
+                return response()->json(['message' => 'Unauthorized: Perangkat tidak dikenali atau sesi berakhir.'], 401);
             }
 
-            // 2. CEK MASA AKTIF SEKOLAH
+            // 2. Ambil Data Sekolah (Cek Masa Aktif)
             $sekolah = Sekolah::find($sekolahId);
+            
+            // Pastikan method isSubscriptionActive() ada di model Sekolah
             if (!$sekolah || !$sekolah->isSubscriptionActive()) {
-                return response()->json([
-                    'message' => 'Masa aktif langganan sekolah telah berakhir. Silakan hubungi Admin.'
-                ], 403);
+                return response()->json(['message' => 'Masa aktif sekolah berakhir. Hubungi Admin.'], 403);
             }
 
             // 3. Ambil Siswa Aktif
@@ -50,12 +52,13 @@ class SyncController extends Controller
                         ->with('kelas:id,nama_kelas')
                         ->get();
 
-            // 4. Ambil Pengaturan Sekolah
+            // 4. Format Settings (Jam & Hari Kerja)
+            // Pastikan format jam H:i (Contoh: 07:00) untuk perbandingan string di Android
             $settings = [
-                'jam_mulai_absen' => $sekolah->jam_mulai_absen,
-                'jam_masuk'       => $sekolah->jam_masuk,
-                'jam_pulang'      => $sekolah->jam_pulang,
-                'hari_kerja'      => $sekolah->hari_kerja,
+                'jam_mulai_absen' => \Carbon\Carbon::parse($sekolah->jam_mulai_absen)->format('H:i'),
+                'jam_masuk'       => \Carbon\Carbon::parse($sekolah->jam_masuk)->format('H:i'),
+                'jam_pulang'      => \Carbon\Carbon::parse($sekolah->jam_pulang)->format('H:i'),
+                'hari_kerja'      => $sekolah->hari_kerja ?? ['Senin','Selasa','Rabu','Kamis','Jumat'],
             ];
 
             return response()->json([
@@ -64,68 +67,56 @@ class SyncController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Terjadi kesalahan server saat mengambil data: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Server Error: ' . $e->getMessage()], 500);
         }
     }
 
-    // B. PUSH DATA (Upload Absensi dari HP)
+    // B. PUSH DATA (Upload Absensi dari HP ke Server)
     public function uploadAbsensi(Request $request)
     {
         try {
-            // 1. Validasi Input
             $data = $request->input('data');
-            if (!$data || !is_array($data)) {
-                return response()->json(['message' => 'Gagal: Format data yang dikirim tidak valid atau kosong.'], 400);
-            }
+            if (!$data || !is_array($data)) return response()->json(['message' => 'Invalid data format'], 400);
 
-            // 2. Identifikasi Sekolah & Cek Masa Aktif
             $sekolah = null;
-            
-            // Cek jika dari Kiosk
             $deviceHash = $request->header('X-Device-Hash');
+            
+            // Identifikasi Sekolah
             if ($deviceHash) {
                 $perangkat = Perangkat::where('device_id_hash', $deviceHash)->first();
                 if ($perangkat) $sekolah = $perangkat->sekolah;
-            }
-            // Cek jika dari Guru (Bearer Token)
-            elseif ($request->user()) {
+            } elseif ($request->user()) {
                 $sekolah = $request->user()->sekolah;
             }
 
-            // Blokir jika sekolah tidak ketemu atau EXPIRED
+            // Validasi Sekolah & Langganan
             if (!$sekolah || !$sekolah->isSubscriptionActive()) {
-                return response()->json([
-                    'message' => 'Gagal Upload: Masa aktif sekolah berakhir atau perangkat tidak dikenali.'
-                ], 403);
+                return response()->json(['message' => 'Gagal Upload: Sekolah tidak aktif atau perangkat tidak dikenal.'], 403);
             }
 
-            // 3. Proses Simpan dengan Transaction agar aman
             DB::beginTransaction();
-            
             $savedCount = 0;
             foreach ($data as $row) {
                 AbsensiHarian::updateOrCreate(
                     [
-                        'siswa_id' => $row['siswa_id'],
-                        'tanggal' => $row['tanggal'], 
+                        'siswa_id' => $row['siswa_id'], 
+                        'tanggal' => $row['tanggal']
                     ],
                     [
                         'jam_masuk' => $row['jam_masuk'],
                         'status' => $row['status'],
                         'sumber' => 'Android',
-                        'sekolah_id' => $sekolah->id, // Force ID sekolah yang valid
+                        'sekolah_id' => $sekolah->id,
                     ]
                 );
                 $savedCount++;
             }
-            
             DB::commit();
 
-            return response()->json(['message' => "Berhasil menyinkronkan $savedCount data absensi."]);
-
+            return response()->json(['message' => "Sukses sinkron $savedCount data"]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Terjadi kesalahan server saat menyimpan: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 }

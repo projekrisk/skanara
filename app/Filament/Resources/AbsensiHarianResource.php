@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AbsensiHarianResource\Pages;
 use App\Models\AbsensiHarian;
+use App\Models\Kelas; // Import Model Kelas
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -17,6 +18,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\Action; // Import Action
 
 class AbsensiHarianResource extends Resource
 {
@@ -86,6 +88,44 @@ class AbsensiHarianResource extends Resource
                 SelectFilter::make('status')
                     ->options(['Hadir' => 'Hadir', 'Telat' => 'Telat', 'Sakit' => 'Sakit', 'Izin' => 'Izin', 'Alpha' => 'Alpha']),
             ])
+            // --- HEADER ACTIONS: TOMBOL DOWNLOAD LAPORAN ---
+            ->headerActions([
+                Action::make('download_laporan')
+                    ->label('Download Laporan (Excel)')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('success')
+                    ->form([
+                        DatePicker::make('start_date')
+                            ->label('Dari Tanggal')
+                            ->default(now()->startOfMonth())
+                            ->required(),
+                        DatePicker::make('end_date')
+                            ->label('Sampai Tanggal')
+                            ->default(now())
+                            ->required(),
+                        Select::make('kelas_id')
+                            ->label('Filter Kelas (Opsional)')
+                            ->options(function () {
+                                // Ambil daftar kelas milik sekolah yang login
+                                $sekolahId = auth()->user()->sekolah_id;
+                                if ($sekolahId) {
+                                    return Kelas::where('sekolah_id', $sekolahId)->pluck('nama_kelas', 'id')->toArray();
+                                }
+                                return Kelas::pluck('nama_kelas', 'id')->toArray();
+                            })
+                            ->placeholder('Semua Kelas')
+                            ->searchable(),
+                    ])
+                    ->action(function (array $data) {
+                        // Redirect ke Controller untuk download
+                        return redirect()->route('download.laporan.absensi', [
+                            'start_date' => $data['start_date'],
+                            'end_date' => $data['end_date'],
+                            'kelas_id' => $data['kelas_id'] ?? 'all',
+                        ]);
+                    })
+            ])
+            // -----------------------------------------------
             ->actions([ Tables\Actions\EditAction::make() ])
             ->bulkActions([]);
     }

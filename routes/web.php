@@ -7,6 +7,7 @@ use App\Http\Controllers\DownloadTemplateController;
 use App\Http\Controllers\DownloadQrController;
 use App\Http\Controllers\ExportJurnalController;
 use App\Http\Controllers\CetakRiwayatController; // Import Controller Baru
+use App\Http\Controllers\LaporanAbsensiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,4 +60,7 @@ Route::middleware('auth')->group(function () {
         Artisan::call('tagihan:autocancel');
         return "Command Autocancel dijalankan.";
     });
+
+    Route::get('/download-laporan-absensi', [LaporanAbsensiController::class, 'download'])
+        ->name('download.laporan.absensi');
 });
