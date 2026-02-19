@@ -116,19 +116,7 @@ class ProfilSekolah extends Page implements Forms\Contracts\HasForms, HasTable
                         ->columnSpanFull()
                         ->extraAttributes(['class' => 'items-center justify-center']),
                 ]),
-
-                Section::make('Tahun Ajaran Aktif')
-                    ->schema([
-                        Placeholder::make('tahun_ajaran_aktif')
-                            ->label('Tahun Ajaran Saat Ini')
-                            ->content(function () {
-                                $sekolahId = $this->getSekolahId();
-                                if (!$sekolahId) return 'Data Sekolah tidak ditemukan.';
-                                $aktif = TahunAjaran::where('id_sekolah', $sekolahId)->where('status_aktif', true)->first();
-                                return $aktif ? "{$aktif->nama} (Semester " . ucfirst($aktif->semester) . ")" : 'Belum ada tahun ajaran aktif.';
-                            }),
-                    ]),
-
+                
                 Tabs::make('Data Sekolah')
                     ->tabs([
                         Tabs\Tab::make('Identitas')
