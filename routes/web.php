@@ -28,6 +28,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/privacy-policy', function () {
+    return view('privacy');
+})->name('privacy.policy');
+
 // --- PENDAFTARAN SEKOLAH ---
 Route::get('/register-sekolah', [RegisterSekolahController::class, 'show'])->name('register.sekolah');
 Route::post('/register-sekolah', [RegisterSekolahController::class, 'store'])->name('register.sekolah.store');
