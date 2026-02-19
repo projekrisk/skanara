@@ -80,14 +80,10 @@ class ProfilSekolah extends Page implements Forms\Contracts\HasForms, HasTable
 
         $this->cancelExpiredTransactions();
         
-        // 1. Ambil atribut sekolah
         $formData = $sekolah->attributesToArray();
 
-        // 2. Ambil data Jadwal Harian (Manual Load)
-        // Kita masukkan ke dalam array data agar Repeater bisa membacanya
         $formData['jadwalHarian'] = $sekolah->jadwalHarian()->get()->toArray();
 
-        // 3. Isi form dengan data gabungan
         $this->form->fill($formData);
     }
 
@@ -116,7 +112,7 @@ class ProfilSekolah extends Page implements Forms\Contracts\HasForms, HasTable
                         ->columnSpanFull()
                         ->extraAttributes(['class' => 'items-center justify-center']),
                 ]),
-                
+
                 Tabs::make('Data Sekolah')
                     ->tabs([
                         Tabs\Tab::make('Identitas')
@@ -131,7 +127,7 @@ class ProfilSekolah extends Page implements Forms\Contracts\HasForms, HasTable
                                 TextInput::make('nip_kepala_sekolah')->label('NIP Kepala Sekolah'),
                             ])->columns(2),
 
-                        Tabs\Tab::make('Jadwal Pelajaran')
+                        Tabs\Tab::make('Jadwal')
                             ->icon('heroicon-o-clock')
                             ->schema([
                                 Placeholder::make('info_jadwal')
@@ -139,8 +135,6 @@ class ProfilSekolah extends Page implements Forms\Contracts\HasForms, HasTable
                                 
                                 Repeater::make('jadwalHarian')
                                     ->label('Jadwal Harian')
-                                    // FIX: Hapus ->relationship() agar tidak crash di Custom Page
-                                    // Kita akan handle simpan data ini secara manual di saveProfile()
                                     ->schema([
                                         Select::make('hari')
                                             ->options([
@@ -161,7 +155,7 @@ class ProfilSekolah extends Page implements Forms\Contracts\HasForms, HasTable
                                     ->cloneable(true),
                             ]),
 
-                        Tabs\Tab::make('Member Area')
+                        Tabs\Tab::make('Member')
                             ->icon('heroicon-o-credit-card')
                             ->schema([
                                 Section::make('Status Langganan')
@@ -182,15 +176,13 @@ class ProfilSekolah extends Page implements Forms\Contracts\HasForms, HasTable
                                     
                                 Actions::make([
                                     Action::make('upgrade_paket')
-                                        ->label('Perpanjang / Upgrade Paket')
+                                        ->label('Upgrade Paket')
                                         ->icon('heroicon-o-sparkles')
                                         ->color('warning')
                                         ->form([
                                             Select::make('id_paket')->options(PaketLangganan::where('harga', '>', 0)->pluck('nama_paket', 'id'))->required(),
                                         ])
                                         ->action(function (array $data) { 
-                                            // FIX: Gunakan Filament::getTenant() atau Auth user secara eksplisit
-                                            // Jangan gunakan $this->getSekolahId() di dalam closure Action
                                             $tenant = Filament::getTenant();
                                             $sekolahId = $tenant ? $tenant->id : Auth::user()->id_sekolah;
 
@@ -230,24 +222,15 @@ class ProfilSekolah extends Page implements Forms\Contracts\HasForms, HasTable
 
     public function saveProfile(): void
     {
-        // Ambil semua data dari form
         $state = $this->form->getState();
         $sekolah = $this->getSekolah();
         
         if ($sekolah) {
-            // 1. Simpan data sekolah (kecuali jadwalHarian karena bukan kolom di tabel sekolah)
-            // collect($state)->except(...) membuang key jadwalHarian sebelum update
             $sekolah->update(collect($state)->except(['jadwalHarian'])->toArray());
             
-            // 2. Simpan Data Jadwal Harian (Manual Sync)
-            // Hapus jadwal lama untuk sekolah ini
             $sekolah->jadwalHarian()->delete();
 
-            // Masukkan jadwal baru dari Repeater
             if (!empty($state['jadwalHarian'])) {
-                // Kita perlu menambahkan id_sekolah ke setiap item karena createMany butuh itu
-                // (atau createMany via relasi otomatis mengisi foreign key)
-                // ->createMany() via relasi otomatis mengisi 'id_sekolah'
                 $sekolah->jadwalHarian()->createMany($state['jadwalHarian']);
             }
 

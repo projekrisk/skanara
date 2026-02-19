@@ -2,10 +2,12 @@
     <form wire:submit="saveProfile">
         {{ $this->form }}
 
-        <div class="mt-4 flex justify-end">
-            <x-filament::button type="submit">
-                Simpan Perubahan Profil
-            </x-filament::button>
+        <div style="mt-8">
+            <div class="mt-4 flex justify-end">
+                <x-filament::button type="submit">
+                    Simpan
+                </x-filament::button>
+            </div>
         </div>
     </form>
 
