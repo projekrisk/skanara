@@ -29,8 +29,8 @@ Route::get('/', function () {
 });
 
 Route::get('/privacy-policy', function () {
-    return view('privacy');
-})->name('privacy.policy');
+    return view('privacy-policy');
+})->name('privacy-policy');
 
 // --- PENDAFTARAN SEKOLAH ---
 Route::get('/register-sekolah', [RegisterSekolahController::class, 'show'])->name('register.sekolah');
